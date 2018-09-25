@@ -1,0 +1,24 @@
+Correlations at time t1:
+Correlation with enemy:  0.4849799429172769
+Correlation with dislike:  0.46955306588520185
+Correlation with neutral:  0.3910986826595419
+Correlation with like:  0.44490554450963266
+Correlation with friend:  0.7205734694885904
+Correlations at time t1 weighted:
+Correlation with enemy:  -0.08220024826806416
+Correlation with dislike:  -0.14487553971973735
+Correlation with neutral:  -0.45808902521660366
+Correlation with like:  -0.2148206344673639
+Correlation with friend:  0.6394737440668817
+Correlations at time t2:
+Correlation with enemy:  0.4808711083875597
+Correlation with dislike:  0.4662295985362115
+Correlation with neutral:  0.3843429772234973
+Correlation with like:  0.4443145909874784
+Correlation with friend:  0.7440658936116906
+Correlations at time t2 weighted:
+Correlation with enemy:  -0.09613813954053911
+Correlation with dislike:  -0.16060739599548277
+Correlation with neutral:  -0.48987712607585704
+Correlation with like:  -0.221790405245254
+Correlation with friend:  0.6896567178914507
