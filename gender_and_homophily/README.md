@@ -1,4 +1,4 @@
-## **Gender and Homophily in Iterated Prisoner's Dilelma Game**
+## **Gender and Homophily in Iterated Prisoner's Dilelma Game Model Description**
 
 We have two types of agents based on gender in our model. Each agent has his/her own tendency to trust other people, denoted by **prob_trust**, which can be defined intuitively as **out_degree(agent_id)/number_agents**. Followed by this definition it implies that this probability will be recalculated at each time step based on the updated trust network. As it will be seen, this probability together with our other assumptions will determine the mixed strategy for each agent.
 
