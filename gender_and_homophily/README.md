@@ -11,8 +11,6 @@ The payoff (affective score) matrix roughly looks like this
 | **tell a secret** | 1,1      | -1,0      |
 | **refrain**       | 0,-1         | 0,0 |
 
-**Interpretation for the matrix in the end, but since the interpretation seems a bit fussy to me, I am gonna stick to "cooperate" and "defect" in the following sections.*
-
 
 ### **Evolutionary dynamics**
 Before we introduce the evolutionary dynamics used in the current model, there are a few notations in consistent with the variable name you may encounter in the code:\
