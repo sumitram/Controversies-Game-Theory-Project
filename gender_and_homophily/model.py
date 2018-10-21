@@ -49,7 +49,7 @@ class StudentAgent():
 
 
 class TrustModel():
-    def __init__(self, trust_network, affective_matrix, corr_friend_trust,\
+    def __init__(self, trust_network, affective_matrix, \
                  bonus_m2m, bonus_f2f, bonus_for_friends):
         """
         Args:
@@ -64,7 +64,7 @@ class TrustModel():
         self.affective_matrix = affective_matrix
         self.bonus_m2m = bonus_m2m
         self.bonus_f2f = bonus_f2f
-        self.bonus_for_friends = corr_friend_trust
+        self.bonus_for_friends = bonus_for_friends
         self.players = []
 
         for id, attributes in self.trust_network.nodes(data = True):

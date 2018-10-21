@@ -1,4 +1,4 @@
-## **Gender and Homophily in Iterated Prisoner's Dilelma Game Model Description**
+## **Gender and Homophily in Iterated Prisoner's Dilemma Game: Model Description**
 
 We have two types of agents based on gender in our model. Each agent has his/her own tendency to trust other people, denoted by **prob_trust**, which can be defined intuitively as **out_degree(agent_id)/number_agents**. Followed by this definition it implies that this probability will be recalculated at each time step upon trust network got updated. As it will be seen, this probability together with our other assumptions will determine the mixed strategy for each agent.
 
@@ -9,7 +9,7 @@ The payoff (affective score) matrix roughly looks like this
 | A\B          | tell a secret | refrain   |
 |--------------|---------------|-----------|
 | **tell a secret** | 1,1      | -1,0      |
-| **refrain**       | 0,-1         | 0,0 |
+| **refrain**       | 0,-1     | 0,0       |
 
 
 ### **Evolutionary dynamics**
@@ -17,7 +17,7 @@ Before we introduce the evolutionary dynamics used in the current model, there a
 **prob_trust** = tendency to trust another agent, a number between 0 and 1 that is defined as out_degree/num_agents.  
 **bonus_f2f** = tendency for a female agent to trust another female agent, 0 if she interacts with a male agent  
 **bonus_m2m** = tendency for a male agent to trust another male agent, 0 if he interacts with a female agent  
-**bonus_for_friends** = tendency for agents to trust their friends (i.e. friendship score = 2), 0 if friendship score < 2
+**bonus_for_friends** = tendency for agents to trust their friends (i.e. friendship score = 2), defined by correlation between friendship and trust. It is 0 if friendship score < 2. 
 
 
 At each time step, all agents will interact with all other agents. For each female (male) agent, she (he) will play "tell a secret" deterministically if she (he) trusts the person initially, otherwise the probability of her (him) playing strategy "tell a secret" is **prob_trust + bonus_f2f (bonus_m2m) + bonus_for_friends**. 
