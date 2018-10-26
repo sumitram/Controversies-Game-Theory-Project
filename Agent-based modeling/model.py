@@ -66,7 +66,7 @@ class StudentAgent():
 
 class TrustModel():
     def __init__(self, trust_network, affective_matrix, \
-                 bonus_m2m, bonus_f2f, bonus_for_friends, mode):
+                 mode, bonus_m2m, bonus_f2f, bonus_for_friends):
         """
         Args:
             trust_network: A networkx DiGraph. Edge (A, B) exists iff A trusts B
