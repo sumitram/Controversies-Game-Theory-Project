@@ -11,6 +11,9 @@ PAYOFF_FUNCTION = {('tell a secret', 'tell a secret'): (1, 1),
                    ('refrain', 'tell a secret'): (0, -1),
                    ('refrain', 'refrain'): (0, 0)}
 
+SEED = 50
+np.random.seed(SEED)
+
 class StudentAgent():
     def __init__(self, model, idx, gender, trust_agents, affective):
         """
@@ -87,8 +90,8 @@ class TrustModel():
         self.mode = mode
         
         features, trust_vec = self.__preprocessing()
-        self.logRegression = LogisticRegression(random_state=0, \
-                                                 solver='lbfgs', multi_class='multinomial').fit(features, trust_vec)
+        self.logRegression = LogisticRegression(random_state=SEED, \
+                                                solver='lbfgs', multi_class='multinomial').fit(features, trust_vec)
 
         for idx, attributes in self.trust_network.nodes(data = True):
             trust_agents = [n for n in trust_network.neighbors(idx)]

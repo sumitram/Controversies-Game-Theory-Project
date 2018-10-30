@@ -42,3 +42,5 @@ def visualize(network, class_id, step):
     plt.axis('off')
     nx.draw_networkx(G = female_network, pos = nx.kamada_kawai_layout(female_network), \
                      with_labels = False, node_color = 'r')
+
+    plt.savefig('Simulated on Class {}, step {}.png'.format(class_id, step))
