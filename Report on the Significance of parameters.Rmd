@@ -1,0 +1,165 @@
+---
+title: "Parameter Significance"
+author: "Carla Schaerer"
+date: "1 October 2018"
+output:
+  pdf_document: default
+  word_document: default
+graphics: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,prompt =FALSE, comment = "  ")
+setwd("~/MSc Statistics/Game Theory/Project")
+
+library(xtable)
+library(kableExtra)
+library(knitr)
+library(igraph)
+
+source("Network Functions.R")
+```
+
+
+```{r Load Function}
+
+# extract class id from files -----
+  PATH <- "Data/"
+  file_ids  <-list.files(PATH, pattern = "sex.csv")
+  class_ids <- c()
+  for (i in 1:length(file_ids))  
+    class_ids[i] <- as.numeric(strsplit(file_ids[i],"_")[[1]][1])
+```
+```{r eval=FALSE}
+# gather network parameters -----
+  Net_Param<-matrix(NA, nrow = 2*length(class_ids), ncol=length(NETWORK_PAR)+2 )
+  colnames(Net_Param) <- c("Class ID","Wave",NETWORK_PAR)
+  
+  j=1
+  for(wave in 1:2){
+    for (i in 1:length(class_ids)){
+      class_id<- class_ids[i]
+      net<-LoadData2Network(class_id,wave)
+      par<-get_network_param(net)
+      Net_Param[j,]<-c(class_id,wave,par)
+      j=j+1  
+    }
+  }
+  save(Net_Param,file="Network Parameters.RData")
+```
+```{r load dataset}
+load("Network Parameters.RData")
+```
+
+
+## Random Graph Generator
+
+Given the estimated parameters, in order to analyze their significance, a sequence of a 1000 random networks was generated. Each set of 1000 graphs has some of the attributes of the trust networks. They have the same number of nodes (students); the same number of boys and girls; and, the same number of trust ties.
+
+Each time a graph is generated, all of the defined parameters are estimated. A table with the 1000 sets of parameters is recorded in order to compare the original values to the distribution of this generated parameters. Following an example for one of the classes
+
+```{r random graph}
+
+random_graph_parameter_distribution <- function(class_id,wave=1,steps=1000) {
+  row<-which(Net_Param[,"Class ID"]== class_id & Net_Param[,"Wave"]==wave)
+  par.net<-Net_Param[row,]
+  n<-par.net["n"]
+  m<-par.net["m"]
+  parameters<-NETWORK_PAR
+  
+  # Generates a couple of random graphs to be able to compare
+    
+    par_dist<-matrix(NA, nrow = steps, ncol=length(parameters))
+    colnames(par_dist) <- parameters
+    sex<- sample(c(rep(2,par.net["n_female"]),rep(1,par.net["n_male"])))
+    for (i in 1:steps){
+      rgraph<-random.graph.game(n,m, type = "gnm", directed = TRUE, loops = FALSE)
+      V(rgraph)$sex<- sex
+      par_dist[i,]<- get_network_param(rgraph)[parameters]
+    }
+    
+    # Calculate frequency table for each parameter
+    freq<-apply(par_dist, 2, quantile, probs=c(2.5,5,25,50,75,95,97.5,100)/100)
+    
+    # With a p_value 0f 5%, if the original value is smaller than the 2.5% quantile or
+    # larger than the 97.5% quantile, the the parameter is significant
+    
+    significance <- (par.net[parameters]<=freq["2.5%",]|par.net[parameters]>=freq["97.5%",])
+    freq<-rbind(freq,net=par.net[parameters], significance=significance)
+    
+    return(freq)
+    
+    }
+```
+
+
+```{r example, echo=FALSE, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+class_id<- 1100
+net<- LoadData2Network(class_id)
+displayNetwork(net, class_id)
+
+
+```
+
+```{r Frequencies of one net, echo=FALSE}
+freq<-random_graph_parameter_distribution(class_id,wave = 1,steps=1000)
+freq<-as.data.frame(freq)
+shornames<-c("n","m","n_f","n_m","num_scc","Size_scc","num_wcc","size_wcc","node_con","edge_con","avg_clus","transitivity", "avg_dist","diameter","radius","density","d.assort","a.assort")
+colnames(freq)<- shornames
+kable(freq, format = "latex", booktabs = T) %>%
+  kable_styling(latex_options = "striped")
+
+```
+
+In the table, net is the original value. Significance is equal to 1 if the original value is smaller than the 2.5% percentile or larger than the 97.5% percentile. Note that in node_connectivity, edge_connectivity and density all values are the same, and therefore it appears significant when is clearly not. I will remove this columns at the end.
+
+The algorithms returns one such table for every class. The last line is then recorded in another data frame, one line per class and wave. This alows us to then consider the fraction of times the parameter is significant which can serve as a weight in the subsequent analysis.
+
+The result of this analysis is the following:
+
+```{r final significance, eval=FALSE}
+
+# Calculate the significance of the parameters for all classes
+  significance_matrix <- matrix(NA, ncol=20, nrow = 2*length(class_ids))
+  colnames(significance_matrix)<- c("Class ID", "Wave", shornames)
+
+  j=1
+  for (wave in 1:2){
+    for (i in 1:length(class_ids)) {
+      class_id <- class_ids[i]
+      freq <- random_graph_parameter_distribution(class_id,wave,steps = 1000)
+      significance_matrix[j,]<-c(class_id, wave, freq["significance",])
+      j=j+1
+    }
+  }
+  proportion <- round(apply(significance_matrix,2, function (x) sum(x)/length(x)),2)
+  proportion[c(1,2)]<- NA
+  significance_matrix <- rbind(proportion, significance_matrix)
+  
+  # To have a reference, the average of all clases for each parameter
+  wave1.average<- apply(subset(Net_Param,Net_Param[,"Wave"]==1),
+                        2,mean)
+  wave1.average[1]<-NA
+  wave2.average<- apply(subset(Net_Param,Net_Param[,"Wave"]==2),
+                        2,mean)
+  wave2.average[1]<- NA
+  
+  significance_matrix<-rbind(wave1.average,wave2.average,significance_matrix)
+  
+  save(significance_matrix,file="Significance Matrix.RData")
+  
+```
+```{r resultado}
+
+load("Significance Matrix.RData")
+
+sig<- data.frame('Significance Proportion'= significance_matrix["proportion",],
+                 'Averege Value Wave 1' = round(significance_matrix["wave1.average",],2),
+                 'Averege Value Wave 2' = round(significance_matrix["wave2.average",],2))
+sig<-sig[3:20,]
+   kable(sig, format = "latex", booktabs = T) %>%
+     kable_styling(latex_options = c("striped", "scale.down"))
+
+```
+
+
