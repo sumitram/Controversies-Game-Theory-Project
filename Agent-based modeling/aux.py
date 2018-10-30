@@ -38,3 +38,46 @@ def get_assortativity(network):
     m2f = round(m2f, 3)
     
     return (f2f, m2m, f2m, m2f)
+
+def plot_assortativity(networks):
+    x_f2f = []
+    x_m2m = []
+    x_f2m = []
+    x_m2f = []
+    y_f2f = []
+    y_m2m = [] 
+    y_f2m = []
+    y_m2f = []
+    for class_id in class_ids:
+        f2f, m2m, f2m, m2f = get_assortativity(simulated_networks[class_id][0])
+        x_f2f.append(f2f)
+        x_m2m.append(m2m)
+        x_f2m.append(f2m)
+        x_m2f.append(m2f)
+        f2f, m2m, f2m, m2f = get_assortativity(simulated_networks[class_id][-1])
+        y_f2f.append(f2f)
+        y_m2m.append(m2m)
+        y_f2m.append(f2m)
+        y_m2f.append(m2f)
+    
+    plt.tight_layout()
+    plt.suptitle('Assortativity f2f', fontsize = 20)
+    plt.scatter(x_f2f, y_f2f, alpha=0.5)
+    plt.savefig("Assortativity f2f.png", dpi = 300)
+    
+    plt.figure()
+    plt.suptitle('Assortativity m2m', fontsize = 20)
+    plt.scatter(x_m2m, y_m2m, alpha=0.5)
+    plt.savefig("Assortativity m2m.png", dpi = 300)
+    
+    plt.figure()
+    plt.suptitle('Assortativity f2m', fontsize = 20)
+    plt.scatter(x_f2m, y_f2m, alpha=0.5)
+    plt.savefig("Assortativity f2m.png", dpi = 300)
+    
+    plt.figure()
+    plt.suptitle('Assortativity m2f', fontsize = 20)
+    plt.scatter(x_m2f, y_m2f, alpha=0.5)
+    plt.savefig("Assortativity m2f.png", dpi = 300)
+    
+    plt.show()
