@@ -7,9 +7,9 @@ from sklearn.linear_model import LogisticRegression
 import math
 
 PAYOFF_FUNCTION = {('tell a secret', 'tell a secret'): (1, 1),
-                   ('tell a secret', 'refrain'): (-1, 0),
-                   ('refrain', 'tell a secret'): (0, -1),
-                   ('refrain', 'refrain'): (0, 0)}
+                   ('tell a secret', 'restrain'): (-1, 0),
+                   ('restrain', 'tell a secret'): (0, -1),
+                   ('restrain', 'restain'): (0, 0)}
 
 SEED = 50
 np.random.seed(SEED)
@@ -25,7 +25,7 @@ class StudentAgent():
             prob_trust: tendency to trust others (irrespective of gender)
             trust_agents: a set of agent ids which the agent trust
             affective: a dictionary of affective score rated by each agent keyed by id
-            strategy: either 'tell a secret' or 'refrain'
+            strategy: either 'tell a secret' or 'restrain'
         """
 
         self.model = model
@@ -49,7 +49,7 @@ class StudentAgent():
         if prob_cooperate > 1:
             prob_cooperate = 1
 
-        return np.random.choice(a = ['tell a secret', 'refrain'], p = [prob_cooperate, 1 - prob_cooperate])
+        return np.random.choice(a = ['tell a secret', 'restrain'], p = [prob_cooperate, 1 - prob_cooperate])
     
     def play_logRegression(self, opponent):
         f2f = 1 if self.gender == opponent.gender and self.gender == 'female' else 0
@@ -61,7 +61,7 @@ class StudentAgent():
                              else self.model.logRegression.predict_proba(feature)[0][1] 
                              # We use it as a probability to cooperate
         
-        return np.random.choice(a = ['tell a secret', 'refrain'], p = [prob_cooperate, 1 - prob_cooperate]) 
+        return np.random.choice(a = ['tell a secret', 'restrain'], p = [prob_cooperate, 1 - prob_cooperate]) 
 
     def state_update(self):
         self.prob_trust = len(self.trust_agents) / len(self.affective)
@@ -147,10 +147,10 @@ class TrustModel():
                         b.trust_agents.add(a.id)
                         self.trust_network.add_edge(b.id, a.id)
             # Case 3
-            if strategy == ('refrain', 'tell a secret') and self.trust_network.has_edge(b.id, a.id):
+            if strategy == ('restrain', 'tell a secret') and self.trust_network.has_edge(b.id, a.id):
                 self.trust_network.remove_edge(b.id, a.id)
             # Case 4
-            if strategy == ('tell a secret', 'refrain') and self.trust_network.has_edge(a.id, b.id):
+            if strategy == ('tell a secret', 'restrain') and self.trust_network.has_edge(a.id, b.id):
                 self.trust_network.remove_edge(a.id, b.id)
 
             ## Update prob_trust of both agents

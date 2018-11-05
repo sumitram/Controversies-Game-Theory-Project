@@ -6,10 +6,10 @@ The goal of our agent is to gain trust from others (i.e. the incoming edges in t
 
 The payoff (affective score) matrix roughly looks like this
 
-| A\B          | tell a secret | refrain   |
+| A\B          | tell a secret | restrain   |
 |--------------|---------------|-----------|
 | **tell a secret** | 1,1      | -1,0      |
-| **refrain**       | 0,-1     | 0,0       |
+| **restrain**       | 0,-1     | 0,0       |
 
 
 ### **Evolutionary dynamics**
@@ -29,11 +29,11 @@ Potential rewiring happens after updating the friendship scores at the end of ea
 **Case 1:** (Strategy A, Strategy B) = (Tell a secret, Tell a secret)\
  If friendship_score of A to B reaches 2 and the edge (A, B) did not exist, create a new edge (A,B) with probability of correlation between friends and trust. The case for B to A is symmetric.
 
-**Case 2:** (Strategy A, Strategy B) = (Refrain, Refrain)\
+**Case 2:** (Strategy A, Strategy B) = (Restrain, Restrain)\
 This case implies edges (A, B) and (B, A) did not exist (otherweise A and B will play "tell a secret" deterministically), and no rewiring will happen.
 
-**Case 3:** (Strategy A, Strategy B) = (Refrain, Tell a secret)\
+**Case 3:** (Strategy A, Strategy B) = (Restrain, Tell a secret)\
 If edge (B, A) exists in the initial trust network, dissolve it. 
 
-**Case 4:** (Strategy A, Strategy B) = (Tell a secret, Refrain)\
+**Case 4:** (Strategy A, Strategy B) = (Tell a secret, Restrain)\
 Symmetric with Case 3.
