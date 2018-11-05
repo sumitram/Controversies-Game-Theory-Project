@@ -5,14 +5,14 @@ import networkx as nx
 import copy
 from sklearn.linear_model import LogisticRegression
 import math
+from visualize import *
 
 PAYOFF_FUNCTION = {('tell a secret', 'tell a secret'): (1, 1),
                    ('tell a secret', 'restrain'): (-1, 0),
                    ('restrain', 'tell a secret'): (0, -1),
-                   ('restrain', 'restain'): (0, 0)}
+                   ('restrain', 'restrain'): (0, 0)}
 
-SEED = 50
-np.random.seed(SEED)
+SEED = 42
 
 class StudentAgent():
     def __init__(self, model, idx, gender, trust_agents, affective):
@@ -49,6 +49,7 @@ class StudentAgent():
         if prob_cooperate > 1:
             prob_cooperate = 1
 
+        np.random.seed(SEED)
         return np.random.choice(a = ['tell a secret', 'restrain'], p = [prob_cooperate, 1 - prob_cooperate])
     
     def play_logRegression(self, opponent):
@@ -59,8 +60,9 @@ class StudentAgent():
         
         prob_cooperate = 0.5 if math.isnan(affective)\
                              else self.model.logRegression.predict_proba(feature)[0][1] 
-                             # We use it as a probability to cooperate
+                             # We use it as the probability to cooperate
         
+        np.random.seed(SEED)
         return np.random.choice(a = ['tell a secret', 'restrain'], p = [prob_cooperate, 1 - prob_cooperate]) 
 
     def state_update(self):
@@ -80,10 +82,10 @@ class TrustModel():
             simulated_networks: a list of all simulated networks
         """
 
-        self.train_network = copy.deepcopy(train_network)
-        self.train_affective = copy.deepcopy(train_affective)
-        self.trust_network = copy.deepcopy(trust_network)
-        self.affective_matrix = copy.deepcopy(affective_matrix)
+        self.train_network = train_network
+        self.train_affective = train_affective
+        self.trust_network = trust_network
+        self.affective_matrix = affective_matrix
         self.bonus_m2m = bonus_m2m
         self.bonus_f2f = bonus_f2f
         self.bonus_for_friends = bonus_for_friends
@@ -129,12 +131,13 @@ class TrustModel():
 
             self.affective_matrix[str(a.id)][b.id] = a.affective[b.id]
             self.affective_matrix[str(b.id)][a.id] = b.affective[a.id]  
-
+ 
             ## Rewiring in the trust network
             # Case 1
             if strategy == ('tell a secret', 'tell a secret'):
                 if (a.affective[b.id] == 2) and (b.id not in a.trust_agents):
                     # If to_trust = 1, we create a new edge from a to b, otherweise unchanged
+                    np.random.seed(SEED)
                     to_trust = np.random.choice(a = [0, 1], p = [1 - self.bonus_for_friends, self.bonus_for_friends])
                     if to_trust == 1:
                         a.trust_agents.add(b.id)
@@ -142,16 +145,21 @@ class TrustModel():
 
                 if (b.affective[a.id] == 2) and (a.id not in b.trust_agents):
                     # If to_trust = 1, we create a new edge from b to a, otherweise unchanged
+                    np.random.seed(SEED)
                     to_trust = np.random.choice(a = [0, 1], p = [1 - self.bonus_for_friends, self.bonus_for_friends])
                     if to_trust == 1:
                         b.trust_agents.add(a.id)
                         self.trust_network.add_edge(b.id, a.id)
+
             # Case 3
             if strategy == ('restrain', 'tell a secret') and self.trust_network.has_edge(b.id, a.id):
                 self.trust_network.remove_edge(b.id, a.id)
+
             # Case 4
             if strategy == ('tell a secret', 'restrain') and self.trust_network.has_edge(a.id, b.id):
+                print(len(self.trust_network.edges()))
                 self.trust_network.remove_edge(a.id, b.id)
+                print(len(self.trust_network.edges()))
 
             ## Update prob_trust of both agents
             a.state_update()
@@ -161,6 +169,7 @@ class TrustModel():
         current_step = 0
         while (current_step < num_step):
             self.step()
+            # print(len(self.trust_network.edges()))
             self.simulated_networks.append(copy.deepcopy(self.trust_network))
             current_step += 1
 
@@ -175,8 +184,6 @@ class TrustModel():
         
         We get a probability from the logistic regression model and use it as the probability of cooperation 
         in our game.
-        
-        Note that 
         """
         agents = self.train_network.nodes()
         trust_edges = self.train_network.edges()
