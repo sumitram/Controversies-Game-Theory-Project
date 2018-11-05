@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
-def visualize(network, class_id, step):
+def visualize(network, class_id, step, simulated=True):
     """
     Args:
         network: NetworkX DiGraph
         class_id: the unique id of class
         step: a number between 0 and NUM_STEP
+        simulated: False if it is a real network
     """
     
     plt.figure(figsize=(25, 8))
