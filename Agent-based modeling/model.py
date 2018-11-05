@@ -68,7 +68,7 @@ class StudentAgent():
 
 
 class TrustModel():
-    def __init__(self, trust_network, affective_matrix, \
+    def __init__(self, train_network, train_affective, trust_network, affective_matrix, \
                  mode, bonus_m2m, bonus_f2f, bonus_for_friends):
         """
         Args:
@@ -80,6 +80,8 @@ class TrustModel():
             simulated_networks: a list of all simulated networks
         """
 
+        self.train_network = copy.deepcopy(train_network)
+        self.train_affective = copy.deepcopy(train_affective)
         self.trust_network = copy.deepcopy(trust_network)
         self.affective_matrix = copy.deepcopy(affective_matrix)
         self.bonus_m2m = bonus_m2m
@@ -176,16 +178,16 @@ class TrustModel():
         
         Note that 
         """
-        agents = self.trust_network.nodes()
-        trust_edges = self.trust_network.edges()
-        gender = nx.get_node_attributes(self.trust_network, 'sex')
+        agents = self.train_network.nodes()
+        trust_edges = self.train_network.edges()
+        gender = nx.get_node_attributes(self.train_network, 'sex')
         all_edges = [(a, b) for a, b in itertools.permutations(agents, 2)]
         
         f2f_features = np.array([1 if (gender[a] == gender[b] and gender[a] == 'female') else 0\
                           for a, b in all_edges]).reshape(-1, 1)
         m2m_features = np.array([1 if (gender[a] == gender[b] and gender[a] == 'male') else 0\
                           for a, b in all_edges]).reshape(-1, 1)
-        affective_features = np.array([self.affective_matrix[str(a)][b] for a, b in all_edges]).reshape(-1, 1)
+        affective_features = np.array([self.train_affective[str(a)][b] for a, b in all_edges]).reshape(-1, 1)
         trust_vec = np.array([1 if (a, b) in trust_edges else 0 for a, b in all_edges])
         
         # Append three feature vectors
