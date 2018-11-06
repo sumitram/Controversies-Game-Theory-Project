@@ -12,7 +12,7 @@ def visualize(network, class_id, step, simulated=True):
     
     plt.figure(figsize=(25, 8))
     plt.tight_layout()
-    plt.suptitle('Simulated on Class {}, step {}'.format(class_id, step), fontsize = 30)
+    plt.suptitle('Simulated on Class {}, Step {}'.format(class_id, step), fontsize = 30)
     
     females = [idx for idx, sex in nx.get_node_attributes(network, 'sex').items() if sex == 'female']
     males = [idx for idx, sex in nx.get_node_attributes(network, 'sex').items() if sex == 'male']

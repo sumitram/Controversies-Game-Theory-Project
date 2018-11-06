@@ -5,13 +5,11 @@ import networkx as nx
 import copy
 from sklearn.linear_model import LogisticRegression
 import math
-from visualize import *
 
 PAYOFF_FUNCTION = {('tell a secret', 'tell a secret'): (1, 1),
                    ('tell a secret', 'restrain'): (-1, 0),
                    ('restrain', 'tell a secret'): (0, -1),
                    ('restrain', 'restrain'): (0, 0)}
-
 SEED = 42
 
 class StudentAgent():
@@ -53,10 +51,10 @@ class TrustModel():
         Args:
             train_network: A NetworkX DiGraph of wave 1. Edge (A, B) exists iff A trusts B
             train_affective: A pandas dataframe that has the affective scores from all agents to all agents in wave 1
-            trust_network: A Networkx DiGraph. Edge (A, B) exists iff A trusts B
+            trust_network: A Networkx DiGraph of wave 2. Edge (A, B) exists iff A trusts B
             affective_matrix: A pandas dataframe that has the affective scores from all agents to all agents in wave 2
             corr_friend_trust: Correlation coefficient between friends and trust
-            simulated_networks: a list of all simulated networks
+            simulated_networks: a list of all simulated networks for num_step
         """
 
         self.train_network = copy.deepcopy(train_network)
@@ -147,14 +145,17 @@ class TrustModel():
 
     def __preprocessing(self):
         """
-        For a pair of nodes a and b, we predict the probability of an edge (a, b) based on three features:
-        f2f, m2m, affective score. f2f is one iff both a and b are females and otherwise zero. Similarly, 
-        m2m is one iff both a and b are females and otherwise zero. Affective score is what we have from 
-        affective_matrix[a][b]. Link prediction for edge (b, a) is symmetric.
+        For a pair of nodes a and b, we predict the probability of an edge (a, b) based on four features:
+        f2f, m2m, affective score, and tendency to trust. 
+        f2f is one iff both a and b are females and otherwise zero. m2m is defined similarly. 
+        Affective score is what we have from affective_matrix[a][b]. 
+        Tendency to trust is defined as #outgoing_edges(a)/#agents_in_trust_network
+        Link prediction for edge (b, a) is defined symmetrically.
         
-        We get a probability from the logistic regression model and use it as the probability of cooperation 
-        in our game.
+        We get a probability from the logistic regression model and use it 
+        as the probability of playing "tell a secret" in our game.
         """
+
         agents = self.train_network.nodes()
         trust_edges = self.train_network.edges()
         gender = nx.get_node_attributes(self.train_network, 'sex')
